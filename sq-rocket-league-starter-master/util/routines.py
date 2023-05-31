@@ -1,6 +1,57 @@
 from util.common import *
-
+import time
 # This file holds all of the mechanical tasks, called "routines", that the bot can do
+from util.objects import *
+
+class goto:
+    def __init__(self, agent, target):
+        self.agent = agent
+        self.target = target
+        self.controller = SimpleControllerState()
+
+    def run(self):
+        # Car control code goes here
+        pass
+
+class AirDribbleSetup:
+    def __init__(self, agent):
+        self.agent = agent
+        self.flip_reset = False
+        self.controller = SimpleControllerState()
+
+    def run(self):
+        agent_to_ball = (self.agent.ball.location - self.agent.me.location).normalize()
+        target = self.agent.ball.location - (agent_to_ball * (self.agent.ball.hitbox_radius + self.agent.me.hitbox.length/2))
+
+        if (self.agent.ball.location - self.agent.me.location).magnitude() < 150:
+            self.agent.controller.jump = True
+            time.sleep(0.1)
+            self.agent.controller.jump = False
+            self.flip_reset = True
+        else:
+            self.agent.controller = goto(self.agent, target).controller
+
+
+class FlipReset:
+    def __init__(self, agent, target):
+        self.agent = agent
+        self.target = target
+        self.controller = SimpleControllerState()
+
+    def run(self):
+        # Assuming that the bot is already airborne
+        agent_to_ball = (self.agent.ball.location - self.agent.me.location).normalize()
+        self.agent.controller.boost = True if (self.agent.ball.location - self.agent.me.location).magnitude() > 500 else False
+        self.agent.controller.jump = True if (self.agent.ball.location - self.agent.me.location).magnitude() < 150 else False
+        self.agent.controller.pitch = agent_to_ball.pitch
+        self.agent.controller.yaw = agent_to_ball.yaw
+        self.agent.controller.roll = agent_to_ball.roll
+
+
+
+
+
+
 
 
 
